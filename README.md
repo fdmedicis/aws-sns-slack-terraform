@@ -1,13 +1,15 @@
 AWS-SNS-SLACK-TERRAFORM
 =======================
-This a sns topic and propagate those to a slack channel using lambda.
-The Lambda uses python code contained in `module/src/main.py`.
+A Terraform setup that routes AWS SNS notifications to a Slack channel via a Lambda function.
 
-This module creates:
+Built from scratch against the AWS provider documentation — the goal was to wire SNS → Lambda → Slack myself and understand each resource (topic, subscription, function, and the IAM permissions between them) rather than pull in an off-the-shelf module.
+
+
+## What it does
 1) SNS topic which will be used by the systems which need to report to slack.
 2) SNS subscription for Lambda and the new topic.
 3) Lambda permission for the SNS topic.
-4) Lambda function which will push the messages from sns to slack.
+4) Lambda function which will push the messages from sns to slack. The Lambda uses python code contained in `module/src/main.py`.
 5) IAM role for the Lambda to be able to run.
 
 
@@ -42,7 +44,7 @@ module "sns_to_slack" {
   source            = "github.com/fdmedicis/aws-sns-slack-terraform/module"
 
   sns_topic_name    = "aws-to-slack"
-  slack_webhook_url = YOUR_URL_WEBHOOK
+  slack_webhook_url = "https://hooks.slack.com/services/XXX/YYY/ZZZ"
   slack_emoji       = ":robot_face:"
   slack_channel     = "#sns-alerts"
 }
@@ -78,10 +80,12 @@ locals {
   iam_tags = {
     account = local.account
     env     = "test"
+    cost-center = "..."
    }
   lambda_tags = {
     tag1 = "boo"
     tag2 = "bee"
+    team = "platform"
     
   }
   sns_tags = {
@@ -90,3 +94,10 @@ locals {
    }
 }
 ```
+
+
+Requirements
+------------
+- Terraform
+- An AWS account with appropriate credentials
+- A Slack incoming webhook URL
